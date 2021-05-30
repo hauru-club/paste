@@ -30,11 +30,6 @@ func run() error {
 	}
 
 	m := pat.New()
-	m.Del("/delete/all", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		store.forEach(func(key string, val []byte) {
-			delete(store.store, key)
-		})
-	}))
 	m.Get("/:key", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.Query().Get(":key")
 
