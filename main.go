@@ -21,6 +21,14 @@ var readme []byte
 func run() error {
 	store := newDataStore()
 
+	port := os.Getenv("PASTE_PORT")
+	host := os.Getenv("PASTE_HOST")
+	target := os.Getenv("PASTE_TARGET")
+
+	if target == "" {
+		target = host + port
+	}
+
 	m := pat.New()
 	m.Del("/delete/all", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		store.forEach(func(key string, val []byte) {
@@ -63,7 +71,7 @@ func run() error {
 		buff := bytes.NewBuffer([]byte{})
 
 		if err := newFileTmpl.Execute(buff, newFileResponse{
-			Host:      "localhost:4000",
+			Host:      target,
 			Key:       key,
 			DeleteKey: delKey,
 		}); err != nil {
@@ -88,9 +96,6 @@ func run() error {
 
 		w.WriteHeader(http.StatusOK)
 	}))
-
-	port := os.Getenv("PASTE_PORT")
-	host := os.Getenv("PASTE_HOST")
 
 	http.Handle("/", m)
 	log.Printf("listening at %s:%s...", host, port)
